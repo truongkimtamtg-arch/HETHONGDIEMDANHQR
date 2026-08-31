@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Điểm Danh Thông Minh Bằng Mã QR</title>
+    
+    <!-- Cấu hình PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#059669">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Tailwind CSS & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Thư viện Chart.js & SheetJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- Thư viện Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Be Vietnam Pro', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+        }
+        /* Tùy chỉnh thanh cuộn */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-emerald-100/60 to-teal-50 min-h-screen text-slate-800 antialiased">
+
+    <div class="max-w-5xl mx-auto p-4 sm:p-6 md:p-8">
+        
+        <header class="text-center mb-8 no-print">
+            <div class="inline-flex items-center justify-center p-3 bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/30 mb-3">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">HỆ THỐNG ĐIỂM DANH THÔNG MINH BẰNG MÃ QR</h1>
+            <p class="text-slate-600 text-sm sm:text-base mt-1 font-medium">Số hóa chuyên cần học sinh bằng công nghệ mã QR</p>
+        </header>
+
+        <!-- Navigation Tabs 5 NÚT -->
+        <div class="flex justify-center mb-6 no-print overflow-x-auto pb-2 custom-scrollbar">
+            <div class="bg-white/80 backdrop-blur-sm p-1.5 rounded-2xl flex space-x-1 shadow-inner border border-emerald-100 min-w-max">
+                <button onclick="switchTab('scan')" id="btn-scan" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-200 whitespace-nowrap">
+                    📸 QUÉT MÃ QR
+                </button>
+                <button onclick="switchTab('list')" id="btn-list" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 text-slate-600 hover:text-emerald-700 whitespace-nowrap">
+                    📋 DANH SÁCH & TẠO MÃ QR
+                </button>
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 text-slate-600 hover:text-emerald-700 whitespace-nowrap">
+                    📊 THỐNG KÊ & BÁO CÁO
+                </button>
+                <button onclick="switchTab('ranking')" id="btn-ranking" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 text-slate-600 hover:text-amber-600 whitespace-nowrap">
+                    🏆 THI ĐUA
+                </button>
+                <button onclick="switchTab('search')" id="btn-search" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 text-slate-600 hover:text-blue-600 whitespace-nowrap">
+                    🔍 TRA CỨU
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 1: QUÉT MÃ QR -->
+        <div id="tab-scan" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-200/40 border border-emerald-50 transition-all">
+            <!-- THANH THÔNG BÁO OFFLINE/ĐỒNG BỘ -->
+            <div id="offline-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-xl mb-6 text-sm font-semibold flex justify-between items-center shadow-sm">
+                <span class="flex items-center"><span class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse mr-2"></span> Đang ngoại tuyến (Mất mạng)</span>
+                <span id="pending-count" class="bg-amber-200 text-amber-900 px-2 py-1 rounded-lg text-xs border border-amber-300">0 bản ghi chờ</span>
+            </div>
+            
+            <div id="sync-banner" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-xl mb-6 text-sm font-semibold flex flex-col sm:flex-row justify-between items-center shadow-sm gap-2">
+                <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-2"></span> Đã kết nối mạng - Có dữ liệu ngoại tuyến</span>
+                <button onclick="syncPendingData()" id="sync-btn" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>Đồng bộ ngay</span>
+                </button>
+            </div>
+
+            <div class="text-center max-w-md mx-auto">
+                <div id="start-btn-container" class="py-6">
+                    <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Sẵn sàng điểm danh</h3>
+                    <p class="text-slate-500 text-sm mb-6">Nhấn nút bên dưới để bật camera và bắt đầu quét thẻ học sinh</p>
+                    
+                    <button onclick="startScanner()" class="w-full sm:w-auto px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-2 mx-auto">
+                        <span>📸 Bắt đầu quét mã QR</span>
+                    </button>
+                </div>
+
+                <div id="scanner-wrapper" class="hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping mr-2"></span> Camera đang hoạt động
+                        </span>
+                        <button onclick="stopScanner()" class="text-xs font-medium text-rose-600 hover:text-rose-700 px-3 py-1.5 bg-rose-50 rounded-lg hover:bg-rose-100 transition">
+                            ⏹️ Tắt Camera
+                        </button>
+                    </div>
+                    <div id="reader" class="w-full overflow-hidden rounded-2xl border-4 border-emerald-100 bg-slate-900 shadow-inner"></div>
+                </div>
+
+                <div id="result-box" class="mt-6 hidden p-4 rounded-2xl text-center text-sm font-semibold transition-all"></div>
+            </div>
+        </div>
+
+        <!-- TAB 2: DANH SÁCH -->
+        <div id="tab-list" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-200/40 border border-emerald-50 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 no-print">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Danh Sách Học Sinh & Thẻ QR</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Dữ liệu được đồng bộ trực tiếp từ Google Sheets</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="window.print()" class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 border border-emerald-100">
+                        <span>🖨️ In thẻ QR</span>
+                    </button>
+                    <button onclick="loadStudentData()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                        <span>🔄 Cập nhật</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto rounded-xl border border-slate-300 bg-white p-1">
+                <table class="w-full text-left border-collapse border border-slate-300">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider">
+                            <th class="py-3.5 px-4 border border-slate-300 text-center">Mã Học Sinh</th>
+                            <th class="py-3.5 px-4 border border-slate-300">Họ và Tên</th>
+                            <th class="py-3.5 px-4 border border-slate-300 text-center">Lớp</th>
+                            <th class="py-3.5 px-4 border border-slate-300 text-center">Mã QR Điểm Danh</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-table-body" class="text-sm text-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 3: THỐNG KÊ & CẢNH BÁO -->
+        <div id="tab-dashboard" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-200/40 border border-emerald-50 hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">THỐNG KÊ CHUYÊN CẦN HÔM NAY</h2>
+                    <p class="text-xs text-slate-500 mt-0.5" id="today-date">Cập nhật lúc: ...</p>
+                </div>
+                <div class="flex items-center space-x-3 w-full md:w-auto">
+                    <select id="class-filter" onchange="updateDashboardView()" class="flex-1 md:w-40 px-3 py-2 bg-white border border-emerald-200 text-emerald-800 rounded-xl text-sm font-bold focus:outline-none focus:border-emerald-500 shadow-sm cursor-pointer">
+                        <option value="ALL">Tất cả các lớp</option>
+                    </select>
+                    <button onclick="loadDashboard()" class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-sm font-semibold transition flex items-center space-x-1.5 border border-emerald-100 whitespace-nowrap shadow-sm">
+                        <span>🔄 Tải lại</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- BỘ LỌC XUẤT BÁO CÁO -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 flex flex-col md:flex-row items-end gap-4 no-print shadow-sm">
+                <div class="flex-1 w-full relative">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Từ ngày (Ngày/Tháng/Năm)</label>
+                    <input type="text" id="filter-start" placeholder="Chọn ngày bắt đầu..." class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-emerald-500 text-sm bg-white cursor-pointer">
+                </div>
+                <div class="flex-1 w-full relative">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Đến ngày (Ngày/Tháng/Năm)</label>
+                    <input type="text" id="filter-end" placeholder="Chọn ngày kết thúc..." class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-emerald-500 text-sm bg-white cursor-pointer">
+                </div>
+                <button onclick="xuatBaoCaoExcel()" class="w-full md:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition flex items-center justify-center space-x-2 shadow-sm">
+                    <span>📊 Xuất Excel</span>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                <!-- KHỐI 1: CA SÁNG -->
+                <div class="bg-slate-50/50 rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <h3 class="text-center font-bold text-slate-700 mb-4 text-base">📊 CA SÁNG</h3>
+                    <div class="relative w-full max-w-[240px] mx-auto"><canvas id="morningChart"></canvas></div>
+                    <div class="grid grid-cols-3 gap-3 mt-6 text-center">
+                        <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-100"><div class="text-xl font-bold text-emerald-600" id="m-stat-comat">0</div><div class="text-[11px] text-slate-500 mt-1 uppercase font-semibold">Có mặt</div></div>
+                        <div class="bg-amber-50 rounded-xl p-3 border border-amber-100"><div class="text-xl font-bold text-amber-500" id="m-stat-muon">0</div><div class="text-[11px] text-slate-500 mt-1 uppercase font-semibold">Muộn</div></div>
+                        <div class="bg-rose-50 rounded-xl p-3 border border-rose-100"><div class="text-xl font-bold text-rose-600" id="m-stat-vang">0</div><div class="text-[11px] text-slate-500 mt-1 uppercase font-semibold">Vắng</div></div>
+                    </div>
+                </div>
+                <!-- KHỐI 2: CA CHIỀU -->
+                <div class="bg-slate-50/50 rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <h3 class="text-center font-bold text-slate-700 mb-4 text-base">📊 CA CHIỀU</h3>
+                    <div class="relative w-full max-w-[240px] mx-auto"><canvas id="afternoonChart"></canvas></div>
+                    <div class="grid grid-cols-3 gap-3 mt-6 text-center">
+                        <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-100"><div class="text-xl font-bold text-emerald-600" id="a-stat-comat">0</div><div class="text-[11px] text-slate-500 mt-1 uppercase font-semibold">Có mặt</div></div>
+                        <div class="bg-amber-50 rounded-xl p-3 border border-amber-100"><div class="text-xl font-bold text-amber-500" id="a-stat-muon">0</div><div class="text-[11px] text-slate-500 mt-1 uppercase font-semibold">Muộn</div></div>
+                        <div class="bg-rose-50 rounded-xl p-3 border border-rose-100"><div class="text-xl font-bold text-rose-600" id="a-stat-vang">0</div><div class="text-[11px] text-slate-500 mt-1 uppercase font-semibold">Vắng</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KHỐI MỚI: CẢNH BÁO VI PHẠM TÍCH LŨY -->
+            <div class="mt-8 bg-rose-50/40 rounded-2xl p-6 border border-rose-200 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="text-2xl">🚨</span>
+                    <div>
+                        <h3 class="font-bold text-rose-800 text-base">CẢNH BÁO ĐI MUỘN TRONG THÁNG NÀY</h3>
+                        <p class="text-xs text-rose-600">Danh sách học sinh vi phạm đi muộn từ 3 lần trở lên trong tháng hiện tại.</p>
+                    </div>
+                </div>
+                <ul id="warning-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    <li class="text-center text-slate-500 py-4 text-sm animate-pulse">⏳ Đang phân tích dữ liệu...</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- TAB 4: THI ĐUA (GAMIFICATION) -->
+        <div id="tab-ranking" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-200/40 border border-emerald-50 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">BẢNG XẾP HẠNG THI ĐUA CHUYÊN CẦN</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Tiêu chí: Đi đúng giờ (+10đ), Đi muộn (+5đ), Vắng (0đ)</p>
+                </div>
+                <button onclick="loadRanking()" class="px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 border border-amber-100 shadow-sm">
+                    <span>🔄 Cập nhật BXH</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Top Lớp -->
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200 shadow-sm">
+                    <h3 class="font-bold text-amber-800 mb-4 flex items-center space-x-2">
+                        <span class="text-xl">🏫</span> <span>TOP LỚP DẪN ĐẦU</span>
+                    </h3>
+                    <ul id="class-ranking-list" class="space-y-3">
+                        <li class="text-center text-slate-500 py-4 text-sm">Bấm "Cập nhật BXH" để tải...</li>
+                    </ul>
+                </div>
+                
+                <!-- Top Học Sinh -->
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200 shadow-sm">
+                    <h3 class="font-bold text-blue-800 mb-4 flex items-center space-x-2">
+                        <span class="text-xl">🌟</span> <span>CÁ NHÂN XUẤT SẮC (TOP 10)</span>
+                    </h3>
+                    <ul id="student-ranking-list" class="space-y-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                        <li class="text-center text-slate-500 py-4 text-sm">Bấm "Cập nhật BXH" để tải...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: TRA CỨU HỌC SINH -->
+        <div id="tab-search" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-200/40 border border-emerald-50 hidden">
+            <div class="max-w-2xl mx-auto">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800 mb-2">Tra Cứu Chuyên Cần Cá Nhân</h2>
+                    <p class="text-sm text-slate-500">Phụ huynh và học sinh có thể nhập Mã HS để kiểm tra lịch sử điểm danh.</p>
+                </div>
+
+                <div class="flex gap-2 mb-8">
+                    <input type="text" id="search-input" placeholder="Nhập Mã Học Sinh (Ví dụ: HS001)..." class="flex-1 px-4 py-3 rounded-xl border-2 border-emerald-100 focus:outline-none focus:border-emerald-500 text-sm font-semibold uppercase">
+                    <button onclick="searchStudent()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition shadow-md flex items-center space-x-2">
+                        <span>🔍 Tra cứu</span>
+                    </button>
+                </div>
+
+                <!-- Nơi hiển thị kết quả tra cứu -->
+                <div id="search-result-box" class="transition-all">
+                    <!-- Sẽ được điền bằng JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Tác Giả -->
+        <div class="text-center mt-10 pt-4 border-t border-emerald-200/60 text-slate-600 text-sm font-medium no-print">
+            Dự án thiết kế bởi <strong>GV: Trương Thị Kim Tâm</strong>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdgibjOgryGEZ9jorZf7cRNdeq3neleZGeRypPzGCYg1rcJcFZx1D8nsUAm2M_0uscTA/exec";
+        let html5QrCode = null;
+        const scannedCodes = {};
+        const COOLDOWN_TIME = 2 * 60 * 1000; 
+        
+        let studentDataCache = {};
+        let globalStats = {}; 
+        let classTotals = {}; 
+        let morningChartInstance = null;
+        let afternoonChartInstance = null;
+
+        window.onload = function() {
+            flatpickr("#filter-start", { dateFormat: "d/m/Y", locale: "vn" });
+            flatpickr("#filter-end", { dateFormat: "d/m/Y", locale: "vn" });
+            
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+            updateNetworkStatus();
+
+            fetch(WEB_APP_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        data.forEach(student => {
+                            let ma = student.maHS || student[0];
+                            studentDataCache[ma] = { hoTen: student.hoTen || student[1], lop: student.lop || student[2] || "Khác" };
+                        });
+                    }
+                }).catch(err => console.log("Khởi tạo bộ nhớ đệm thất bại", err));
+        };
+
+        // --- CÁC HÀM XỬ LÝ NGOẠI TUYẾN ---
+        function updateNetworkStatus() {
+            let queue = JSON.parse(localStorage.getItem('pendingScans') || '[]');
+            if (!navigator.onLine) {
+                document.getElementById('offline-banner').classList.remove('hidden');
+                document.getElementById('sync-banner').classList.add('hidden');
+                document.getElementById('pending-count').innerText = queue.length + " bản ghi chờ";
+            } else {
+                document.getElementById('offline-banner').classList.add('hidden');
+                if (queue.length > 0) {
+                    document.getElementById('sync-banner').classList.remove('hidden');
+                    document.getElementById('sync-btn').innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> <span>Đồng bộ ${queue.length} bản ghi</span>`;
+                } else {
+                    document.getElementById('sync-banner').classList.add('hidden');
+                }
+            }
+        }
+
+        async function syncPendingData() {
+            let queue = JSON.parse(localStorage.getItem('pendingScans') || '[]');
+            if (queue.length === 0) return;
+            let btn = document.getElementById('sync-btn');
+            btn.innerHTML = "⏳ Đang đồng bộ...";
+            btn.disabled = true;
+
+            let successful = 0;
+            let originalLength = queue.length;
+            for (let i = 0; i < originalLength; i++) {
+                try {
+                    await fetch(WEB_APP_URL, {
+                        method: "POST", mode: "no-cors",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(queue[0])
+                    });
+                    queue.shift();
+                    localStorage.setItem('pendingScans', JSON.stringify(queue));
+                    successful++;
+                    btn.innerHTML = `⏳ Đã gửi (${successful}/${originalLength})...`;
+                } catch (error) { break; }
+            }
+
+            updateNetworkStatus();
+            if (queue.length === 0) {
+                showResult("🎉 Đã đồng bộ toàn bộ dữ liệu ngoại tuyến lên Google Sheets!", "success");
+                loadDashboard(); 
+            } else {
+                showResult(`⚠️ Kết nối gián đoạn. Chỉ đồng bộ được ${successful} bản ghi.`, "warning");
+            }
+            btn.disabled = false;
+        }
+
+        function saveToLocal(data, info) {
+            let queue = JSON.parse(localStorage.getItem('pendingScans') || '[]');
+            queue.push(data);
+            localStorage.setItem('pendingScans', JSON.stringify(queue));
+            let thongTinHienThi = info ? `<b>${info.hoTen}</b> (Lớp ${info.lop})` : `Mã HS: ${data.maHS}`;
+            showResult(`⚠️ Mất mạng! Đã lưu ngoại tuyến: ${thongTinHienThi}`, "warning");
+            updateNetworkStatus();
+        }
+
+        // --- CÁC HÀM GIAO DIỆN & TAB ---
+        function switchTab(tab) {
+            const tabs = ['scan', 'list', 'dashboard', 'ranking', 'search'];
+            tabs.forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                let btn = document.getElementById(`btn-${t}`);
+                if(btn) btn.className = "px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 text-slate-600 hover:text-emerald-700 whitespace-nowrap";
+            });
+
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            let activeBtn = document.getElementById(`btn-${tab}`);
+            if(activeBtn) {
+                activeBtn.className = "px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-200 whitespace-nowrap";
+            }
+
+            if (tab === 'scan') startScanner(); else stopScanner();
+            if (tab === 'list') loadStudentData();
+            if (tab === 'dashboard') loadDashboard();
+            if (tab === 'ranking') loadRanking(); 
+        }
+
+        function startScanner() {
+            document.getElementById('start-btn-container').classList.add('hidden');
+            document.getElementById('scanner-wrapper').classList.remove('hidden');
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 220, height: 220 } }, onScanSuccess)
+                .catch(err => {
+                    showResult(`❌ Không thể truy cập Camera. Vui lòng cấp quyền!`, "error");
+                    stopScanner();
+                });
+        }
+
+        function stopScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('start-btn-container').classList.remove('hidden');
+                    document.getElementById('scanner-wrapper').classList.add('hidden');
+                }).catch(err => console.error(err));
+            } else {
+                document.getElementById('start-btn-container').classList.remove('hidden');
+                document.getElementById('scanner-wrapper').classList.add('hidden');
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            html5QrCode.pause();
+            let now = new Date();
+
+            if (scannedCodes[decodedText]) {
+                let timeSinceLastScan = now.getTime() - scannedCodes[decodedText];
+                if (timeSinceLastScan < COOLDOWN_TIME) {
+                    let remainingSeconds = Math.ceil((COOLDOWN_TIME - timeSinceLastScan) / 1000);
+                    showResult(`⚠️ Mã HS ${decodedText} đã được điểm danh. Vui lòng thử lại sau ${remainingSeconds} giây.`, "error");
+                    setTimeout(() => { if (html5QrCode) html5QrCode.resume(); }, 2000);
+                    return;
+                }
+            }
+
+            scannedCodes[decodedText] = now.getTime();
+            let h = now.getHours(), m = now.getMinutes(), timeInMinutes = h * 60 + m, trangThai = "Vắng"; 
+
+            if (h < 12) {
+                if (timeInMinutes >= (6 * 60 + 15) && timeInMinutes <= (7 * 60)) trangThai = "Có mặt";
+                else if (timeInMinutes > (7 * 60) && timeInMinutes <= (11 * 60 + 15)) trangThai = "Muộn";
+            } else {
+                if (timeInMinutes >= (12 * 60 + 15) && timeInMinutes <= (13 * 60)) trangThai = "Có mặt";
+                else if (timeInMinutes > (13 * 60) && timeInMinutes <= (17 * 60 + 15)) trangThai = "Muộn";
+            }
+
+            let thoiGian = now.toISOString();
+            let scanData = { maHS: decodedText, thoiGian: thoiGian, trangThai: trangThai };
+            
+            let info = studentDataCache[decodedText] || studentDataCache[decodedText.toUpperCase()];
+            let thongTinHienThi = info ? `<b>${info.hoTen}</b> (Lớp ${info.lop})` : `Mã HS: ${decodedText}`;
+            let thongTinDoc = info ? `${info.hoTen}, lớp ${info.lop}` : decodedText;
+
+            if (!navigator.onLine) {
+                saveToLocal(scanData, info);
+                docGiongNoi(`Đã lưu ngoại tuyến học sinh ${thongTinDoc}`);
+                setTimeout(() => { if (html5QrCode) html5QrCode.resume(); }, 2500);
+                return;
+            }
+
+            showResult(`⏳ Đang ghi nhận điểm danh cho: ${info ? info.hoTen : decodedText}...`, "info");
+
+            fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(scanData) })
+            .then(() => {
+                showResult(`🎉 Đã điểm danh thành công! ${thongTinHienThi} - Trạng thái: ${trangThai}`, "success");
+                docGiongNoi(`Đã điểm danh thành công học sinh ${thongTinDoc}`);
+            }).catch(error => {
+                saveToLocal(scanData, info);
+                docGiongNoi(`Đã lưu ngoại tuyến học sinh ${thongTinDoc}`);
+            }).finally(() => {
+                setTimeout(() => { if (html5QrCode) html5QrCode.resume(); }, 2500);
+            });
+        }
+
+        function docGiongNoi(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                let msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'vi-VN'; 
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function showResult(message, type) {
+            const box = document.getElementById('result-box');
+            box.classList.remove('hidden');
+            if (type === 'success') box.className = "mt-6 p-4 rounded-2xl text-center text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm";
+            else if (type === 'error') box.className = "mt-6 p-4 rounded-2xl text-center text-sm font-semibold bg-rose-50 text-rose-700 border border-rose-200 shadow-sm";
+            else if (type === 'warning') box.className = "mt-6 p-4 rounded-2xl text-center text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm";
+            else box.className = "mt-6 p-4 rounded-2xl text-center text-sm font-semibold bg-teal-50 text-teal-700 border border-teal-200 shadow-sm animate-pulse";
+            box.innerHTML = message; 
+        }
+
+        // --- CÁC HÀM XỬ LÝ DỮ LIỆU ---
+        function loadStudentData() {
+            const tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-400 font-medium border border-slate-300">Đang tải danh sách từ hệ thống...</td></tr>`;
+
+            fetch(WEB_APP_URL).then(res => res.json()).then(data => {
+                tbody.innerHTML = "";
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-400 font-medium border border-slate-300">Chưa có dữ liệu học sinh.</td></tr>`;
+                    return;
+                }
+                data.forEach((student, index) => {
+                    let ma = student.maHS || student[0], ten = student.hoTen || student[1], lop = student.lop || student[2] || "Khác";
+                    studentDataCache[ma] = { hoTen: ten, lop: lop };
+                    if(index === 0 && (ma === "MaHS" || ma === "Mã HS")) return; 
+
+                    let row = document.createElement('tr');
+                    row.className = "hover:bg-emerald-50/30 transition-colors";
+                    row.innerHTML = `<td class="py-4 px-4 font-bold text-slate-900 border border-slate-300 text-center align-middle">${ma}</td>
+                                     <td class="py-4 px-4 font-medium border border-slate-300 align-middle">${ten}</td>
+                                     <td class="py-4 px-4 font-medium border border-slate-300 text-center align-middle text-emerald-700">${lop}</td>
+                                     <td class="py-4 px-4 border border-slate-300 align-middle"><div class="flex justify-center"><div id="qrcode-${index}" class="p-2 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-emerald-300 transition-colors"></div></div></td>`;
+                    tbody.appendChild(row);
+                    new QRCode(document.getElementById(`qrcode-${index}`), { text: ma, width: 70, height: 70, colorDark : "#0f172a", colorLight : "#ffffff" });
+                });
+            }).catch(() => { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500 font-medium border border-slate-300">❌ Không thể tải dữ liệu. Vui lòng kiểm tra lại kết nối.</td></tr>`; });
+        }
+
+        // --- CẬP NHẬT LOAD DASHBOARD & TÍNH CẢNH BÁO ---
+        function loadDashboard() {
+            let dateStr = new Date().toLocaleString('vi-VN');
+            document.getElementById('today-date').innerText = `Cập nhật lúc: ${dateStr}`;
+
+            fetch(WEB_APP_URL).then(res => res.json()).then(danhSach => {
+                classTotals = { 'ALL': 0 };
+                let classesSet = new Set();
+                danhSach.forEach((student, index) => {
+                    let ma = student.maHS || student[0];
+                    if (index === 0 && (ma === "MaHS" || ma === "Mã HS")) return; 
+                    let lop = student.lop || student[2] || "Khác";
+                    studentDataCache[ma] = { hoTen: student.hoTen || student[1], lop: lop };
+                    classTotals['ALL']++;
+                    classTotals[lop] = (classTotals[lop] || 0) + 1;
+                    classesSet.add(lop);
+                });
+
+                let classFilter = document.getElementById('class-filter');
+                let currentVal = classFilter.value;
+                classFilter.innerHTML = '<option value="ALL">Tất cả các lớp</option>';
+                Array.from(classesSet).sort().forEach(c => { classFilter.innerHTML += `<option value="${c}">Lớp ${c}</option>`; });
+                if (classesSet.has(currentVal)) classFilter.value = currentVal;
+
+                return fetch(WEB_APP_URL + "?action=getStats");
+            }).then(res => res.json()).then(diemDanhData => {
+                globalStats = { 'ALL': { mCoMat: 0, mMuon: 0, aCoMat: 0, aMuon: 0 } };
+                Object.keys(classTotals).forEach(c => { if (c !== 'ALL') globalStats[c] = { mCoMat: 0, mMuon: 0, aCoMat: 0, aMuon: 0 }; });
+                
+                let today = new Date().toLocaleDateString('vi-VN');
+                
+                // Các biến cho tính năng Cảnh báo
+                let currentMonth = new Date().getMonth();
+                let currentYear = new Date().getFullYear();
+                let lateCountsThisMonth = {};
+
+                for(let i = 1; i < diemDanhData.length; i++) {
+                    let row = diemDanhData[i];
+                    if(row[1] || row.thoiGian || row.ThoiGian) {
+                        let scanDate = new Date(row[1] || row.thoiGian || row.ThoiGian);
+                        let thoiGianQuet = scanDate.toLocaleDateString('vi-VN');
+                        let trangThai = row[2] || row.trangThai || row.TrangThai;
+                        let scanHour = scanDate.getHours();
+                        let maHS = row[0] || row.maHS || row.MaHS;
+                        let lop = studentDataCache[maHS] ? studentDataCache[maHS].lop : "Khác";
+                        
+                        if (!globalStats[lop]) globalStats[lop] = { mCoMat: 0, mMuon: 0, aCoMat: 0, aMuon: 0 };
+
+                        // 1. Phân bổ dữ liệu cho Hôm Nay (Dashboard)
+                        if(thoiGianQuet === today) {
+                            if (scanHour < 12) {
+                                if (trangThai === "Có mặt") { globalStats['ALL'].mCoMat++; globalStats[lop].mCoMat++; }
+                                if (trangThai === "Muộn") { globalStats['ALL'].mMuon++; globalStats[lop].mMuon++; }
+                            } else {
+                                if (trangThai === "Có mặt") { globalStats['ALL'].aCoMat++; globalStats[lop].aCoMat++; }
+                                if (trangThai === "Muộn") { globalStats['ALL'].aMuon++; globalStats[lop].aMuon++; }
+                            }
+                        }
+
+                        // 2. Tính toán cho Cảnh báo vi phạm trong tháng
+                        if (scanDate.getMonth() === currentMonth && scanDate.getFullYear() === currentYear) {
+                            if (trangThai === "Muộn") {
+                                lateCountsThisMonth[maHS] = (lateCountsThisMonth[maHS] || 0) + 1;
+                            }
+                        }
+                    }
+                }
+                updateDashboardView();
+                renderWarningList(lateCountsThisMonth); // Hiển thị cảnh báo
+            }).catch(err => console.error("Lỗi tải dashboard: ", err));
+        }
+
+        function updateDashboardView() {
+            let selectedClass = document.getElementById('class-filter').value;
+            let stats = globalStats[selectedClass] || { mCoMat: 0, mMuon: 0, aCoMat: 0, aMuon: 0 };
+            let total = classTotals[selectedClass] || 0;
+
+            let mVang = total - (stats.mCoMat + stats.mMuon); if(mVang < 0) mVang = 0;
+            let aVang = total - (stats.aCoMat + stats.aMuon); if(aVang < 0) aVang = 0;
+
+            document.getElementById('m-stat-comat').innerText = stats.mCoMat; document.getElementById('m-stat-muon').innerText = stats.mMuon; document.getElementById('m-stat-vang').innerText = mVang;
+            document.getElementById('a-stat-comat').innerText = stats.aCoMat; document.getElementById('a-stat-muon').innerText = stats.aMuon; document.getElementById('a-stat-vang').innerText = aVang;
+
+            morningChartInstance = drawChart('morningChart', morningChartInstance, stats.mCoMat, stats.mMuon, mVang);
+            afternoonChartInstance = drawChart('afternoonChart', afternoonChartInstance, stats.aCoMat, stats.aMuon, aVang);
+        }
+
+        // HÀM MỚI: Hiển thị cảnh báo
+        function renderWarningList(lateCountsThisMonth) {
+            let warningHtml = '';
+            for (let ma in lateCountsThisMonth) {
+                if (lateCountsThisMonth[ma] >= 3) {
+                    let info = studentDataCache[ma] || { hoTen: "Học sinh " + ma, lop: "Khác" };
+                    warningHtml += `
+                        <li class="flex justify-between items-center bg-white p-3 rounded-xl border border-rose-100 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">⚠️</span>
+                                <div>
+                                    <div class="font-bold text-slate-700">${info.hoTen}</div>
+                                    <div class="text-xs text-slate-500">Lớp ${info.lop} - Mã: ${ma}</div>
+                                </div>
+                            </div>
+                            <div class="text-rose-600 font-bold bg-rose-50 border border-rose-100 px-3 py-1 rounded-lg text-sm">
+                                ${lateCountsThisMonth[ma]} lần muộn
+                            </div>
+                        </li>`;
+                }
+            }
+            document.getElementById('warning-list').innerHTML = warningHtml || '<li class="text-center text-emerald-600 py-4 font-medium text-sm">🎉 Rất tốt! Hiện không có học sinh nào đi muộn quá 3 lần trong tháng này.</li>';
+        }
+
+        function drawChart(canvasId, chartInstance, coMat, muon, vang) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+            return new Chart(ctx, {
+                type: 'doughnut', data: { labels: ['Có mặt', 'Muộn', 'Vắng'], datasets: [{ data: [coMat, muon, vang], backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'], borderWidth: 0, hoverOffset: 4 }] },
+                options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+            });
+        }
+
+        function xuatBaoCaoExcel() {
+            let tuNgayStr = document.getElementById('filter-start').value;
+            let denNgayStr = document.getElementById('filter-end').value;
+            if(!tuNgayStr || !denNgayStr) { showResult("Vui lòng chọn đầy đủ thời gian Từ ngày và Đến ngày!", "error"); return; }
+
+            let pStart = tuNgayStr.split('/'), pEnd = denNgayStr.split('/');
+            let startDate = new Date(pStart[2], pStart[1] - 1, pStart[0]); startDate.setHours(0, 0, 0, 0);
+            let endDate = new Date(pEnd[2], pEnd[1] - 1, pEnd[0]); endDate.setHours(23, 59, 59, 999);
+
+            if (startDate > endDate) { showResult("Lỗi: 'Từ ngày' không thể lớn hơn 'Đến ngày'.", "error"); return; }
+            showResult("⏳ Đang tổng hợp dữ liệu, vui lòng chờ...", "info");
+
+            fetch(WEB_APP_URL + "?action=getStats").then(res => res.json()).then(diemDanhData => {
+                let exportData = [];
+                exportData.push(["Mã Học Sinh", "Họ Tên", "Lớp", "Thời Gian Quét", "Ca Học", "Trạng Thái"]);
+                for(let i = 1; i < diemDanhData.length; i++) {
+                    let row = diemDanhData[i];
+                    if(row[1] || row.thoiGian || row.ThoiGian) {
+                        let scanDate = new Date(row[1] || row.thoiGian || row.ThoiGian);
+                        if (scanDate >= startDate && scanDate <= endDate) {
+                            let ma = row[0] || row.maHS || row.MaHS;
+                            let info = studentDataCache[ma] || { hoTen: "Không xác định", lop: "Khác" };
+                            let trangThai = row[2] || row.trangThai || row.TrangThai;
+                            let caHoc = scanDate.getHours() < 12 ? "Sáng" : "Chiều";
+                            exportData.push([ma, info.hoTen, info.lop, scanDate.toLocaleString('vi-VN'), caHoc, trangThai]);
+                        }
+                    }
+                }
+                if(exportData.length <= 1) { showResult("❌ Không có dữ liệu điểm danh nào trong khoảng thời gian này.", "error"); return; }
+
+                let ws = XLSX.utils.aoa_to_sheet(exportData);
+                let wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "BaoCaoChuyenCan");
+                XLSX.writeFile(wb, `Bao_Cao_${pStart[0]}_${pStart[1]}_${pStart[2]}_den_${pEnd[0]}_${pEnd[1]}_${pEnd[2]}.xlsx`);
+                showResult("🎉 Đã tải xuống file Báo cáo Excel thành công!", "success");
+            }).catch(err => { console.error(err); showResult("❌ Lỗi tải dữ liệu. Vui lòng thử lại.", "error"); });
+        }
+
+        // --- HÀM TÍNH TOÁN BẢNG XẾP HẠNG THI ĐUA ---
+        function loadRanking() {
+            let classListUI = document.getElementById('class-ranking-list');
+            let studentListUI = document.getElementById('student-ranking-list');
+            classListUI.innerHTML = `<li class="text-center text-slate-500 py-4 text-sm animate-pulse">⏳ Đang tải dữ liệu...</li>`;
+            studentListUI.innerHTML = `<li class="text-center text-slate-500 py-4 text-sm animate-pulse">⏳ Đang tải dữ liệu...</li>`;
+
+            fetch(WEB_APP_URL + "?action=getStats")
+                .then(res => res.json())
+                .then(diemDanhData => {
+                    let studentPoints = {};
+                    for (let ma in studentDataCache) {
+                        studentPoints[ma] = { hoTen: studentDataCache[ma].hoTen, lop: studentDataCache[ma].lop, diem: 0, coMat: 0, muon: 0 };
+                    }
+
+                    for(let i = 1; i < diemDanhData.length; i++) {
+                        let row = diemDanhData[i];
+                        if(row[1] || row.thoiGian || row.ThoiGian) {
+                            let maHS = row[0] || row.maHS || row.MaHS;
+                            let trangThai = row[2] || row.trangThai || row.TrangThai;
+                            if (!studentPoints[maHS]) {
+                                let info = studentDataCache[maHS] || { hoTen: "Học sinh " + maHS, lop: "Khác" };
+                                studentPoints[maHS] = { hoTen: info.hoTen, lop: info.lop, diem: 0, coMat: 0, muon: 0 };
+                            }
+                            if (trangThai === "Có mặt") { studentPoints[maHS].diem += 10; studentPoints[maHS].coMat += 1; } 
+                            else if (trangThai === "Muộn") { studentPoints[maHS].diem += 5; studentPoints[maHS].muon += 1; }
+                        }
+                    }
+
+                    let classStats = {};
+                    for (let ma in studentPoints) {
+                        let lop = studentPoints[ma].lop;
+                        if (!classStats[lop]) classStats[lop] = { totalPoints: 0, studentCount: 0 };
+                        classStats[lop].totalPoints += studentPoints[ma].diem;
+                        classStats[lop].studentCount += 1; 
+                    }
+
+                    let classRankArray = [];
+                    for (let lop in classStats) {
+                        if (classStats[lop].studentCount > 0 && lop !== "Khác" && lop !== "") {
+                            let avg = classStats[lop].totalPoints / classStats[lop].studentCount;
+                            classRankArray.push({ lop: lop, avgPoint: avg });
+                        }
+                    }
+                    classRankArray.sort((a, b) => b.avgPoint - a.avgPoint);
+
+                    let studentRankArray = Object.values(studentPoints).filter(s => s.diem > 0);
+                    studentRankArray.sort((a, b) => b.diem - a.diem);
+
+                    let classHtml = '';
+                    let medals = ['🏆', '🥈', '🥉'];
+                    for(let i = 0; i < Math.min(5, classRankArray.length); i++) {
+                        let rankIcon = i < 3 ? medals[i] : `<span class="inline-block w-6 h-6 leading-6 text-center rounded-full bg-slate-200 text-slate-600 font-bold text-xs">#${i+1}</span>`;
+                        classHtml += `<li class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-slate-100"><div class="flex items-center space-x-3"><div class="text-xl w-8 text-center">${rankIcon}</div><div class="font-bold text-slate-700">Lớp ${classRankArray[i].lop}</div></div><div class="text-right"><div class="font-bold text-amber-600">${classRankArray[i].avgPoint.toFixed(1)} <span class="text-[10px] text-slate-400 font-normal">điểm/HS</span></div></div></li>`;
+                    }
+                    classListUI.innerHTML = classHtml || '<li class="text-center text-slate-500 py-4 text-sm">Chưa có đủ dữ liệu để xếp hạng</li>';
+
+                    let studentHtml = '';
+                    for(let i = 0; i < Math.min(10, studentRankArray.length); i++) {
+                        let s = studentRankArray[i];
+                        let rankIcon = i < 3 ? medals[i] : `<span class="inline-block w-6 h-6 leading-6 text-center rounded-full bg-slate-200 text-slate-600 font-bold text-xs">#${i+1}</span>`;
+                        studentHtml += `<li class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-slate-100"><div class="flex items-center space-x-3"><div class="text-xl w-8 text-center">${rankIcon}</div><div><div class="font-bold text-slate-700 text-sm">${s.hoTen}</div><div class="text-[11px] text-slate-500 font-medium">Lớp ${s.lop}</div></div></div><div class="text-right"><div class="font-bold text-blue-600">${s.diem} <span class="text-[10px] font-normal">điểm</span></div><div class="text-[10px] text-emerald-600 font-medium">Đúng giờ: ${s.coMat}</div></div></li>`;
+                    }
+                    studentListUI.innerHTML = studentHtml || '<li class="text-center text-slate-500 py-4 text-sm">Chưa có đủ dữ liệu để xếp hạng</li>';
+                })
+                .catch(err => {
+                    classListUI.innerHTML = `<li class="text-center text-rose-500 py-4 text-sm">❌ Lỗi tải dữ liệu</li>`;
+                    studentListUI.innerHTML = `<li class="text-center text-rose-500 py-4 text-sm">❌ Lỗi tải dữ liệu</li>`;
+                });
+        }
+
+        // --- HÀM MỚI: TÌM KIẾM HỌC SINH ---
+        function searchStudent() {
+            let maSearch = document.getElementById('search-input').value.trim().toUpperCase();
+            if(!maSearch) {
+                document.getElementById('search-result-box').innerHTML = '<div class="text-center text-amber-600 bg-amber-50 p-3 rounded-xl font-medium text-sm border border-amber-200 shadow-sm">⚠️ Vui lòng nhập Mã học sinh cần tra cứu!</div>';
+                return;
+            }
+
+            let info = studentDataCache[maSearch] || studentDataCache[maSearch.toLowerCase()];
+            if(!info) {
+                 let found = Object.keys(studentDataCache).find(k => k.toUpperCase() === maSearch);
+                 if(found) {
+                     maSearch = found;
+                     info = studentDataCache[maSearch];
+                 } else {
+                     document.getElementById('search-result-box').innerHTML = '<div class="text-center text-rose-600 bg-rose-50 p-4 rounded-xl font-medium text-sm border border-rose-200 shadow-sm">❌ Không tìm thấy thông tin học sinh! Hãy kiểm tra lại mã.</div>';
+                     return;
+                 }
+            }
+
+            document.getElementById('search-result-box').innerHTML = '<div class="text-center text-emerald-600 py-8 animate-pulse font-medium text-sm">⏳ Đang tải lịch sử điểm danh...</div>';
+
+            fetch(WEB_APP_URL + "?action=getStats")
+                .then(res => res.json())
+                .then(data => {
+                    let historyHtml = '';
+                    let coMat = 0, muon = 0, vang = 0; 
+                    
+                    for(let i = data.length - 1; i >= 1; i--) { 
+                        let row = data[i];
+                        let rMa = (row[0] || row.maHS || row.MaHS || "").toString().toUpperCase();
+                        
+                        if(rMa === maSearch.toUpperCase()) {
+                            let sDate = new Date(row[1] || row.thoiGian || row.ThoiGian);
+                            let tThai = row[2] || row.trangThai || row.TrangThai;
+                            
+                            if(tThai === "Có mặt") coMat++;
+                            else if(tThai === "Muộn") muon++;
+
+                            let colorClass = tThai === "Có mặt" ? "text-emerald-700 bg-emerald-100" : "text-amber-700 bg-amber-100";
+                            let caHoc = sDate.getHours() < 12 ? "Sáng" : "Chiều";
+
+                            historyHtml += `
+                            <div class="flex justify-between items-center p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition">
+                                <div>
+                                    <div class="font-bold text-slate-700 text-sm">${sDate.toLocaleDateString('vi-VN')}</div>
+                                    <div class="text-xs text-slate-500 font-medium">${sDate.toLocaleTimeString('vi-VN')} - Ca ${caHoc}</div>
+                                </div>
+                                <div class="px-3 py-1 rounded-lg text-xs font-bold ${colorClass}">${tThai}</div>
+                            </div>`;
+                        }
+                    }
+
+                    let profileHtml = `
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-5 rounded-2xl mb-6 shadow-sm">
+                            <h3 class="font-extrabold text-blue-900 text-xl">${info.hoTen}</h3>
+                            <p class="text-sm text-blue-700 font-medium mt-1">Lớp: ${info.lop} &bull; Mã HS: ${maSearch}</p>
+                            
+                            <div class="grid grid-cols-2 gap-3 mt-5 text-center">
+                                <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                                    <div class="font-black text-2xl text-emerald-600">${coMat}</div>
+                                    <div class="text-[11px] font-bold text-slate-500 mt-1">LẦN ĐÚNG GIỜ</div>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                                    <div class="font-black text-2xl text-amber-500">${muon}</div>
+                                    <div class="text-[11px] font-bold text-slate-500 mt-1">LẦN ĐI MUỘN</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-sm">
+                            <div class="bg-slate-50 px-4 py-3 font-bold text-sm text-slate-700 border-b border-slate-200 flex items-center space-x-2">
+                                <span>📅</span> <span>Lịch Sử Điểm Danh (Gần nhất)</span>
+                            </div>
+                            <div class="max-h-[350px] overflow-y-auto custom-scrollbar">
+                                ${historyHtml || '<div class="text-center py-8 text-slate-500 text-sm">Học sinh chưa có dữ liệu điểm danh.</div>'}
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('search-result-box').innerHTML = profileHtml;
+                })
+                .catch(err => {
+                    document.getElementById('search-result-box').innerHTML = '<div class="text-center text-rose-500 py-4">❌ Lỗi kết nối, không thể tải dữ liệu!</div>';
+                });
+        }
+
+        // --- ĐĂNG KÝ SERVICE WORKER (PWA) ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('Đã đăng ký PWA thành công!', reg.scope))
+                    .catch(err => console.log('PWA chưa đăng ký được:', err));
+            });
+        }
+    </script>
+</body>
+</html>
