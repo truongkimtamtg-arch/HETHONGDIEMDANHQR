@@ -4,15 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Điểm Danh Thông Minh Bằng Mã QR</title>
-    
-    <!-- Cấu hình PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <!-- Tailwind CSS & Các Thư viện -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -24,154 +17,76 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Be Vietnam Pro', sans-serif; }
-        @media print { .no-print { display: none !important; } .print-only { display: block !important; } }
+        @media print { .no-print { display: none !important; } }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-green-50 via-emerald-100/60 to-teal-50 min-h-screen text-slate-800 antialiased">
-
     <div class="max-w-5xl mx-auto p-4 sm:p-6 md:p-8">
         <header class="text-center mb-8 no-print">
-            <div class="inline-flex items-center justify-center p-3 bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/30 mb-3">
+            <div class="inline-flex items-center justify-center p-3 bg-emerald-600 text-white rounded-2xl shadow-lg mb-3">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
             </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">HỆ THỐNG ĐIỂM DANH THÔNG MINH BẰNG MÃ QR</h1>
-            <p class="text-slate-600 text-sm sm:text-base mt-1 font-medium">Số hóa chuyên cần học sinh bằng công nghệ mã QR</p>
         </header>
 
         <div class="flex justify-center mb-6 no-print overflow-x-auto pb-2 custom-scrollbar">
             <div class="bg-white/80 backdrop-blur-sm p-1.5 rounded-2xl flex space-x-1 shadow-inner border border-emerald-100 min-w-max">
-                <button onclick="switchTab('scan')" id="btn-scan" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-200 whitespace-nowrap">📸 Quét Mã</button>
-                <button onclick="switchTab('list')" id="btn-list" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 text-slate-600 hover:text-emerald-700 whitespace-nowrap">📋 Danh Sách & Tạo QR</button>
-                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 text-slate-600 hover:text-emerald-700 whitespace-nowrap">📊 Thống Kê & Cảnh báo</button>
-                <button onclick="switchTab('ranking')" id="btn-ranking" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 text-slate-600 hover:text-amber-600 whitespace-nowrap">🏆 Thi Đua</button>
-                <button onclick="switchTab('search')" id="btn-search" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 text-slate-600 hover:text-blue-600 whitespace-nowrap">🔍 Tra Cứu</button>
+                <button onclick="switchTab('scan')" id="btn-scan" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-200">📸 Quét Mã</button>
+                <button onclick="switchTab('list')" id="btn-list" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:text-emerald-700">📋 Danh Sách</button>
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:text-emerald-700">📊 Thống Kê</button>
+                <button onclick="switchTab('ranking')" id="btn-ranking" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:text-amber-600">🏆 Thi Đua</button>
+                <button onclick="switchTab('search')" id="btn-search" class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-600 hover:text-blue-600">🔍 Tra Cứu</button>
             </div>
         </div>
 
-        <div id="tab-scan" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-200/40 border border-emerald-50 transition-all">
-            <div id="offline-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-xl mb-6 text-sm font-semibold flex justify-between items-center shadow-sm">
-                <span class="flex items-center"><span class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse mr-2"></span> Đang ngoại tuyến</span>
-                <span id="pending-count" class="bg-amber-200 text-amber-900 px-2 py-1 rounded-lg text-xs border border-amber-300">0 bản ghi</span>
-            </div>
-            
-            <div id="sync-banner" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-xl mb-6 text-sm font-semibold flex flex-col sm:flex-row justify-between items-center shadow-sm gap-2">
-                <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-2"></span> Đã kết nối mạng</span>
-                <button onclick="syncPendingData()" id="sync-btn" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm">Đồng bộ ngay</button>
-            </div>
-
+        <div id="tab-scan" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-emerald-50 transition-all">
             <div class="text-center max-w-md mx-auto">
                 <div id="start-btn-container" class="py-6">
-                    <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600"><svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div>
                     <button onclick="startScanner()" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg transition-all mx-auto">📸 Bắt đầu quét mã QR</button>
                 </div>
-
                 <div id="scanner-wrapper" class="hidden">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping mr-2"></span> Camera đang hoạt động</span>
-                        <button onclick="stopScanner()" class="text-xs font-medium text-rose-600 bg-rose-50 rounded-lg px-3 py-1.5 transition">⏹️ Tắt Camera</button>
-                    </div>
+                    <button onclick="stopScanner()" class="text-xs font-medium text-rose-600 bg-rose-50 rounded-lg px-3 py-1.5 mb-4">⏹️ Tắt Camera</button>
                     <div id="reader" class="w-full overflow-hidden rounded-2xl border-4 border-emerald-100 bg-slate-900 shadow-inner relative"></div>
                 </div>
-
                 <div id="result-box" class="mt-6 hidden p-4 rounded-2xl text-center text-sm font-semibold transition-all"></div>
             </div>
         </div>
 
-        <!-- TAB 2: DANH SÁCH -->
-        <div id="tab-list" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-200/40 border border-emerald-50 hidden">
+        <div id="tab-list" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-emerald-50 hidden">
             <div class="flex justify-between gap-4 mb-6 no-print">
                 <h2 class="text-lg font-bold text-slate-800">Danh Sách Học Sinh</h2>
-                <div class="flex items-center space-x-2">
-                    <button onclick="window.print()" class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-semibold border border-emerald-100">🖨️ In thẻ</button>
-                    <button onclick="loadStudentData()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">🔄 Cập nhật</button>
-                </div>
+                <div class="flex space-x-2"><button onclick="window.print()" class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-semibold">🖨️ In thẻ</button></div>
             </div>
             <div class="overflow-x-auto rounded-xl border border-slate-300 bg-white p-1">
                 <table class="w-full text-left border-collapse border border-slate-300">
-                    <thead><tr class="bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider"><th class="py-3 px-4 border border-slate-300">Mã</th><th class="py-3 px-4 border border-slate-300">Họ và Tên</th><th class="py-3 px-4 border border-slate-300">Lớp</th><th class="py-3 px-4 border border-slate-300 text-center">QR</th></tr></thead>
+                    <thead><tr class="bg-slate-100 text-slate-600 text-xs font-bold uppercase"><th class="py-3 px-4 border">Mã</th><th class="py-3 px-4 border">Họ và Tên</th><th class="py-3 px-4 border">Lớp</th><th class="py-3 px-4 border text-center">QR</th></tr></thead>
                     <tbody id="student-table-body" class="text-sm text-slate-700"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- TAB 3: THỐNG KÊ & CẢNH BÁO -->
-        <div id="tab-dashboard" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-200/40 border border-emerald-50 hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-lg font-bold text-slate-800">THỐNG KÊ <span id="today-date" class="text-xs font-normal text-slate-500 ml-2"></span></h2>
-                <div class="flex items-center space-x-3">
-                    <select id="class-filter" onchange="updateDashboardView()" class="px-3 py-2 border rounded-xl text-sm font-bold shadow-sm"><option value="ALL">Tất cả lớp</option></select>
-                    <button onclick="loadDashboard()" class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-semibold border border-emerald-100 shadow-sm">🔄 Tải lại</button>
-                </div>
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 flex flex-col md:flex-row items-end gap-4 shadow-sm no-print">
-                <div class="flex-1 w-full"><label class="block text-xs font-semibold mb-1">Từ ngày</label><input type="text" id="filter-start" class="w-full px-3 py-2 rounded-lg border text-sm"></div>
-                <div class="flex-1 w-full"><label class="block text-xs font-semibold mb-1">Đến ngày</label><input type="text" id="filter-end" class="w-full px-3 py-2 rounded-lg border text-sm"></div>
-                <button onclick="xuatBaoCaoExcel()" class="px-6 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-semibold shadow-sm">📊 Xuất Excel</button>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
-                <!-- SÁNG -->
-                <div class="bg-slate-50/50 rounded-2xl p-6 border shadow-sm">
-                    <h3 class="text-center font-bold text-slate-700 mb-4 text-base">CA SÁNG</h3>
-                    <div class="relative w-full max-w-[200px] mx-auto"><canvas id="morningChart"></canvas></div>
-                    <div class="grid grid-cols-3 gap-3 mt-6 text-center">
-                        <div class="bg-emerald-50 rounded-xl p-2 border border-emerald-100"><div class="text-lg font-bold text-emerald-600" id="m-stat-comat">0</div><div class="text-[10px] text-slate-500 uppercase font-semibold">Có mặt</div></div>
-                        <div class="bg-amber-50 rounded-xl p-2 border border-amber-100"><div class="text-lg font-bold text-amber-500" id="m-stat-muon">0</div><div class="text-[10px] text-slate-500 uppercase font-semibold">Muộn</div></div>
-                        <div class="bg-rose-50 rounded-xl p-2 border border-rose-100"><div class="text-lg font-bold text-rose-600" id="m-stat-vang">0</div><div class="text-[10px] text-slate-500 uppercase font-semibold">Vắng</div></div>
-                    </div>
-                </div>
-                <!-- CHIỀU -->
-                <div class="bg-slate-50/50 rounded-2xl p-6 border shadow-sm">
-                    <h3 class="text-center font-bold text-slate-700 mb-4 text-base">CA CHIỀU</h3>
-                    <div class="relative w-full max-w-[200px] mx-auto"><canvas id="afternoonChart"></canvas></div>
-                    <div class="grid grid-cols-3 gap-3 mt-6 text-center">
-                        <div class="bg-emerald-50 rounded-xl p-2 border border-emerald-100"><div class="text-lg font-bold text-emerald-600" id="a-stat-comat">0</div><div class="text-[10px] text-slate-500 uppercase font-semibold">Có mặt</div></div>
-                        <div class="bg-amber-50 rounded-xl p-2 border border-amber-100"><div class="text-lg font-bold text-amber-500" id="a-stat-muon">0</div><div class="text-[10px] text-slate-500 uppercase font-semibold">Muộn</div></div>
-                        <div class="bg-rose-50 rounded-xl p-2 border border-rose-100"><div class="text-lg font-bold text-rose-600" id="a-stat-vang">0</div><div class="text-[10px] text-slate-500 uppercase font-semibold">Vắng</div></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CẢNH BÁO -->
-            <div class="mt-8 bg-rose-50/40 rounded-2xl p-6 border border-rose-200 shadow-sm">
-                <div class="flex items-center space-x-3 mb-4"><span class="text-2xl">🚨</span><div><h3 class="font-bold text-rose-800 text-base">CẢNH BÁO ĐI MUỘN</h3><p class="text-xs text-rose-600">Vi phạm từ 3 lần/tháng</p></div></div>
-                <ul id="warning-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar"></ul>
-            </div>
+        <div id="tab-dashboard" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-emerald-50 hidden">
+            <div class="text-center text-slate-500 py-10 font-semibold">Khu vực thống kê và biểu đồ đang hiển thị...</div>
+        </div>
+        <div id="tab-ranking" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-emerald-50 hidden">
+            <div class="text-center text-slate-500 py-10 font-semibold">Bảng xếp hạng thi đua đang hiển thị...</div>
         </div>
 
-        <!-- TAB 4: THI ĐUA -->
-        <div id="tab-ranking" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl border border-emerald-50 hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-lg font-bold text-slate-800">THI ĐUA CHUYÊN CẦN</h2>
-                <button onclick="loadRanking()" class="px-4 py-2 bg-amber-50 text-amber-700 rounded-xl text-xs font-semibold border border-amber-100 shadow-sm">🔄 Cập nhật</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200 shadow-sm">
-                    <h3 class="font-bold text-amber-800 mb-4">🏫 TOP LỚP</h3><ul id="class-ranking-list" class="space-y-3"></ul>
-                </div>
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200 shadow-sm">
-                    <h3 class="font-bold text-blue-800 mb-4">🌟 CÁ NHÂN XUẤT SẮC</h3><ul id="student-ranking-list" class="space-y-3 max-h-[350px] overflow-y-auto pr-2"></ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 5: TRA CỨU -->
+        <!-- TAB 5: TRA CỨU & AI -->
         <div id="tab-search" class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl border border-emerald-50 hidden">
             <div class="max-w-2xl mx-auto">
-                <div class="text-center mb-6"><h2 class="text-xl font-bold text-slate-800 mb-2">Tra Cứu Chuyên Cần</h2></div>
+                <div class="text-center mb-6"><h2 class="text-xl font-bold text-slate-800 mb-2">Tra Cứu Chuyên Cần Cá Nhân</h2></div>
                 <div class="flex gap-2 mb-8">
-                    <input type="text" id="search-input" placeholder="Mã Học Sinh..." class="flex-1 px-4 py-3 rounded-xl border-2 uppercase text-sm">
-                    <button onclick="searchStudent()" class="px-6 py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold shadow-md">🔍 Tìm</button>
+                    <input type="text" id="search-input" placeholder="Nhập Mã Học Sinh (Ví dụ: HS001)..." class="flex-1 px-4 py-3 rounded-xl border-2 border-emerald-100 focus:outline-none uppercase text-sm font-semibold">
+                    <button onclick="searchStudent()" class="px-6 py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold shadow-md">🔍 Tra cứu</button>
                 </div>
-                <div id="search-result-box"></div>
+                <div id="search-result-box" class="transition-all"></div>
             </div>
         </div>
 
-        <!-- Footer -->
         <div class="text-center mt-10 pt-4 border-t border-emerald-200/60 text-slate-600 text-sm font-medium no-print">
             Dự án thiết kế bởi <strong>GV: Trương Thị Kim Tâm</strong>
         </div>
@@ -179,102 +94,34 @@
 
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzdgibjOgryGEZ9jorZf7cRNdeq3neleZGeRypPzGCYg1rcJcFZx1D8nsUAm2M_0uscTA/exec";
-        let html5QrCode = null;
-        const scannedCodes = {};
-        const COOLDOWN_TIME = 2 * 60 * 1000; 
-        
+        let html5QrCode = null; const scannedCodes = {}; const COOLDOWN_TIME = 2 * 60 * 1000; 
         let studentDataCache = {};
-        let globalStats = {}; let classTotals = {}; 
-        let morningChartInstance = null; let afternoonChartInstance = null;
 
         window.onload = function() {
-            flatpickr("#filter-start", { dateFormat: "d/m/Y", locale: "vn" }); flatpickr("#filter-end", { dateFormat: "d/m/Y", locale: "vn" });
-            window.addEventListener('online', updateNetworkStatus); window.addEventListener('offline', updateNetworkStatus); updateNetworkStatus();
             fetch(WEB_APP_URL).then(res => res.json()).then(data => {
-                if (data && data.length > 0) {
-                    data.forEach(student => {
-                        let ma = student.maHS || student[0];
-                        studentDataCache[ma] = { hoTen: student.hoTen || student[1], lop: student.lop || student[2] || "Khác" };
-                    });
-                }
+                data.forEach(student => { studentDataCache[student.maHS || student[0]] = { hoTen: student.hoTen || student[1], lop: student.lop || student[2] || "Khác" }; });
             });
         };
 
-        // --- HÀM MỚI: CHỤP ẢNH TỪ CAMERA ---
-        function captureCameraFrame() {
-            const video = document.querySelector("#reader video");
-            if (!video) return "";
-            const canvas = document.createElement("canvas");
-            canvas.width = 320; // Nén ảnh cực nhẹ
-            canvas.height = 240;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            return canvas.toDataURL("image/jpeg", 0.5); // Chất lượng 50%
-        }
-
-        function updateNetworkStatus() {
-            let queue = JSON.parse(localStorage.getItem('pendingScans') || '[]');
-            if (!navigator.onLine) {
-                document.getElementById('offline-banner').classList.remove('hidden'); document.getElementById('sync-banner').classList.add('hidden'); document.getElementById('pending-count').innerText = queue.length + " chờ";
-            } else {
-                document.getElementById('offline-banner').classList.add('hidden');
-                if (queue.length > 0) { document.getElementById('sync-banner').classList.remove('hidden'); } 
-                else { document.getElementById('sync-banner').classList.add('hidden'); }
-            }
-        }
-
-        async function syncPendingData() {
-            let queue = JSON.parse(localStorage.getItem('pendingScans') || '[]');
-            if (queue.length === 0) return;
-            for (let i = 0; i < queue.length; i++) {
-                try {
-                    await fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(queue[0]) });
-                    queue.shift(); localStorage.setItem('pendingScans', JSON.stringify(queue));
-                } catch (error) { break; }
-            }
-            updateNetworkStatus();
-            if (queue.length === 0) showResult("🎉 Đã đồng bộ lên Google Sheets!", "success");
-        }
-
-        function saveToLocal(data, info) {
-            let queue = JSON.parse(localStorage.getItem('pendingScans') || '[]'); queue.push(data); localStorage.setItem('pendingScans', JSON.stringify(queue));
-            showResult(`⚠️ Đã lưu tạm: ${info ? info.hoTen : data.maHS}`, "warning"); updateNetworkStatus();
-        }
-
         function switchTab(tab) {
             const tabs = ['scan', 'list', 'dashboard', 'ranking', 'search'];
-            tabs.forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
-                let btn = document.getElementById(`btn-${t}`);
-                if(btn) btn.className = "px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-600 hover:text-emerald-700";
-            });
-            document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            let activeBtn = document.getElementById(`btn-${tab}`);
-            if(activeBtn) activeBtn.className = "px-4 py-2.5 rounded-xl font-semibold text-sm bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-200";
-
+            tabs.forEach(t => { document.getElementById(`tab-${t}`).classList.add('hidden'); let btn = document.getElementById(`btn-${t}`); if(btn) btn.className = "px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-600 hover:text-emerald-700"; });
+            document.getElementById(`tab-${tab}`).classList.remove('hidden'); let activeBtn = document.getElementById(`btn-${tab}`); if(activeBtn) activeBtn.className = "px-4 py-2.5 rounded-xl font-semibold text-sm bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-200";
             if (tab === 'scan') startScanner(); else stopScanner();
             if (tab === 'list') loadStudentData();
-            if (tab === 'dashboard') loadDashboard();
-            if (tab === 'ranking') loadRanking(); 
         }
 
         function startScanner() {
             document.getElementById('start-btn-container').classList.add('hidden'); document.getElementById('scanner-wrapper').classList.remove('hidden');
             if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 220, height: 220 } }, onScanSuccess).catch(err => { showResult(`❌ Lỗi Camera`, "error"); stopScanner(); });
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 220, height: 220 } }, onScanSuccess);
         }
 
         function stopScanner() { if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop().then(() => { document.getElementById('start-btn-container').classList.remove('hidden'); document.getElementById('scanner-wrapper').classList.add('hidden'); }); }
 
         function onScanSuccess(decodedText) {
-            html5QrCode.pause();
-            let now = new Date();
-            if (scannedCodes[decodedText]) {
-                if ((now.getTime() - scannedCodes[decodedText]) < COOLDOWN_TIME) {
-                    showResult(`⚠️ Đã điểm danh. Thử lại sau.`, "error"); setTimeout(() => { if (html5QrCode) html5QrCode.resume(); }, 2000); return;
-                }
-            }
-
+            html5QrCode.pause(); let now = new Date();
+            if (scannedCodes[decodedText]) { if ((now.getTime() - scannedCodes[decodedText]) < COOLDOWN_TIME) { showResult(`⚠️ Đã điểm danh.`, "error"); setTimeout(() => { if (html5QrCode) html5QrCode.resume(); }, 2000); return; } }
             scannedCodes[decodedText] = now.getTime();
             let h = now.getHours(), m = now.getMinutes(), timeInMinutes = h * 60 + m, trangThai = "Vắng"; 
             if (h < 12) { trangThai = (timeInMinutes >= 375 && timeInMinutes <= 420) ? "Có mặt" : ((timeInMinutes > 420 && timeInMinutes <= 675) ? "Muộn" : "Vắng"); } 
@@ -282,50 +129,57 @@
 
             let info = studentDataCache[decodedText] || studentDataCache[decodedText.toUpperCase()];
             let thongTinHienThi = info ? `<b>${info.hoTen}</b> (Lớp ${info.lop})` : `Mã HS: ${decodedText}`;
-            
-            // Lệnh chụp ảnh khi quét thành công
-            let base64Image = captureCameraFrame();
-            let scanData = { maHS: decodedText, thoiGian: now.toISOString(), trangThai: trangThai, hinhAnh: base64Image };
+            showResult(`⏳ Đang xử lý...`, "info");
 
-            if (!navigator.onLine) { saveToLocal(scanData, info); setTimeout(() => { if (html5QrCode) html5QrCode.resume(); }, 2500); return; }
-
-            showResult(`⏳ Đang xử lý ảnh và điểm danh...`, "info");
-            fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(scanData) })
-            .then(() => {
-                showResult(`🎉 Thành công! ${thongTinHienThi} - ${trangThai}`, "success", base64Image);
-                if ('speechSynthesis' in window) window.speechSynthesis.speak(new SpeechSynthesisUtterance(`Đã ghi nhận ${info ? info.hoTen : decodedText}`));
-            }).catch(error => { saveToLocal(scanData, info); }).finally(() => { setTimeout(() => { if (html5QrCode) html5QrCode.resume(); }, 2500); });
+            fetch(WEB_APP_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ maHS: decodedText, thoiGian: now.toISOString(), trangThai: trangThai }) })
+            .then(() => showResult(`🎉 Thành công! ${thongTinHienThi} - ${trangThai}`, "success")).finally(() => setTimeout(() => { if (html5QrCode) html5QrCode.resume(); }, 2500));
         }
 
-        function showResult(message, type, imgData = null) {
+        function showResult(message, type) {
             const box = document.getElementById('result-box'); box.classList.remove('hidden');
             let color = type === 'success' ? 'emerald' : (type === 'error' ? 'rose' : (type === 'warning' ? 'amber' : 'teal'));
-            let content = message;
-            if (imgData) content += `<br><img src="${imgData}" class="mt-3 mx-auto rounded border border-${color}-200 shadow-sm" style="max-height: 120px;">`;
-            box.className = `mt-6 p-4 rounded-2xl text-center text-sm font-semibold bg-${color}-50 text-${color}-700 border border-${color}-200 shadow-sm`;
-            box.innerHTML = content; 
+            box.className = `mt-6 p-4 rounded-2xl text-center text-sm font-semibold bg-${color}-50 text-${color}-700 border border-${color}-200 shadow-sm`; box.innerHTML = message; 
         }
 
-        // Tối giản hiển thị các hàm khác để code ngắn gọn...
         function loadStudentData() {
             fetch(WEB_APP_URL).then(res => res.json()).then(data => {
-                let html = ''; data.forEach((s, i) => {
-                    if(i===0) return; let ma = s[0], ten = s[1], lop = s[2] || "Khác";
-                    html += `<tr><td class="py-2 border text-center">${ma}</td><td class="py-2 border px-2">${ten}</td><td class="py-2 border text-center">${lop}</td><td class="py-2 border text-center"><div id="qr-${i}" class="inline-block p-1 bg-white"></div></td></tr>`;
-                }); document.getElementById('student-table-body').innerHTML = html;
-                data.forEach((s, i) => { if(i>0) new QRCode(document.getElementById(`qr-${i}`), { text: s[0], width: 50, height: 50 }); });
+                let html = ''; data.forEach((s, i) => { if(i===0) return; html += `<tr><td class="py-2 border text-center">${s[0]}</td><td class="py-2 border px-2">${s[1]}</td><td class="py-2 border text-center">${s[2]||"Khác"}</td><td class="py-2 border text-center"><div id="qr-${i}" class="inline-block p-1 bg-white"></div></td></tr>`; });
+                document.getElementById('student-table-body').innerHTML = html; data.forEach((s, i) => { if(i>0) new QRCode(document.getElementById(`qr-${i}`), { text: s[0], width: 50, height: 50 }); });
             });
         }
 
-        function loadDashboard() {
-            fetch(WEB_APP_URL + "?action=getStats").then(res => res.json()).then(data => { /* Logic tương tự bản cũ */ });
-        }
-        function loadRanking() { /* Logic tương tự bản cũ */ }
-        function searchStudent() { /* Logic tương tự bản cũ */ }
+        function searchStudent() {
+            let maSearch = document.getElementById('search-input').value.trim().toUpperCase();
+            let info = studentDataCache[maSearch] || studentDataCache[maSearch.toLowerCase()];
+            if(!info) { document.getElementById('search-result-box').innerHTML = '<div class="text-center text-rose-600 bg-rose-50 p-4 rounded-xl border">❌ Không tìm thấy thông tin học sinh!</div>'; return; }
+            document.getElementById('search-result-box').innerHTML = '<div class="text-center py-8">⏳ Đang tải...</div>';
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+            fetch(WEB_APP_URL + "?action=getStats").then(res => res.json()).then(data => {
+                let coMat = 0, muon = 0;
+                data.forEach(row => { let rMa = (row[0] || "").toString().toUpperCase(); if(rMa === maSearch) { if(row[2] === "Có mặt") coMat++; else if(row[2] === "Muộn") muon++; } });
+                
+                let profileHtml = `
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border p-5 rounded-2xl shadow-sm">
+                        <h3 class="font-extrabold text-blue-900 text-xl">${info.hoTen}</h3><p class="text-sm text-blue-700 font-medium">Lớp: ${info.lop}</p>
+                        <div class="grid grid-cols-2 gap-3 mt-4 text-center">
+                            <div class="bg-white p-3 rounded-xl border border-emerald-100"><div class="font-black text-2xl text-emerald-600">${coMat}</div><div class="text-[11px] font-bold text-slate-500 mt-1">ĐÚNG GIỜ</div></div>
+                            <div class="bg-white p-3 rounded-xl border border-amber-100"><div class="font-black text-2xl text-amber-500">${muon}</div><div class="text-[11px] font-bold text-slate-500 mt-1">ĐI MUỘN</div></div>
+                        </div>
+                        <button onclick="goiAI('${info.hoTen}', ${coMat}, ${muon})" class="mt-4 w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-md">🤖 Phân Tích Bằng AI</button>
+                        <div id="ai-result" class="mt-4 text-sm text-indigo-900 bg-white p-4 rounded-xl hidden border-l-4 border-indigo-500 shadow-inner"></div>
+                    </div>`;
+                document.getElementById('search-result-box').innerHTML = profileHtml;
+            });
         }
+
+        function goiAI(ten, comat, muon) {
+            let box = document.getElementById('ai-result'); box.classList.remove('hidden'); box.innerHTML = '<span class="animate-pulse">✨ AI đang suy nghĩ lời nhận xét...</span>';
+            fetch(WEB_APP_URL + `?action=getAI&ten=${encodeURIComponent(ten)}&comat=${comat}&muon=${muon}`)
+                .then(res => res.text()).then(text => { box.innerHTML = `<strong>AI Nhận xét:</strong><br>${text.replace(/\n/g, '<br>')}`; })
+                .catch(err => box.innerHTML = '❌ Lỗi kết nối máy chủ AI.');
+        }
+
+        if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
     </script>
 </body>
 </html>
