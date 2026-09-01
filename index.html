@@ -740,7 +740,7 @@
                 });
         }
 
-        // --- HÀM TÌM KIẾM HỌC SINH (ĐÃ TÍCH HỢP HIỆN NHẬN XÉT TRỰC TIẾP TỪ CỘT D) ---
+        // --- HÀM TÌM KIẾM HỌC SINH (ĐỒNG BỘ TUYỆT ĐỐI SỐ LIỆU VÀ NHẬN XÉT) ---
         function searchStudent() {
             let maSearch = document.getElementById('search-input').value.trim().toUpperCase();
             if(!maSearch) {
@@ -760,26 +760,19 @@
                  }
             }
 
-            document.getElementById('search-result-box').innerHTML = '<div class="text-center text-emerald-600 py-8 animate-pulse font-medium text-sm">⏳ Đang tải lịch sử điểm danh và nhận xét...</div>';
+            document.getElementById('search-result-box').innerHTML = '<div class="text-center text-emerald-600 py-8 animate-pulse font-medium text-sm">⏳ Đang tải lịch sử điểm danh...</div>';
 
             fetch(WEB_APP_URL + "?action=getStats")
                 .then(res => res.json())
                 .then(data => {
                     let historyHtml = '';
                     let coMat = 0, muon = 0; 
-                    let latestNhanXet = "Chưa có dữ liệu nhận xét.";
                     
-                    // Lọc lịch sử và tìm nhận xét mới nhất từ cột D (index 3) của Google Sheets
                     for(let i = data.length - 1; i >= 1; i--) { 
                         let row = data[i];
                         let rMa = (row[0] || row.maHS || row.MaHS || "").toString().toUpperCase();
                         
                         if(rMa === maSearch.toUpperCase()) {
-                            // Lấy câu nhận xét từ cột D (index 3) nếu có
-                            if ((row[3] || row.nhanXet || row.NhanXet) && latestNhanXet === "Chưa có dữ liệu nhận xét.") {
-                                latestNhanXet = row[3] || row.nhanXet || row.NhanXet;
-                            }
-
                             let sDate = new Date(row[1] || row.thoiGian || row.ThoiGian);
                             let tThai = row[2] || row.trangThai || row.TrangThai;
                             
@@ -800,6 +793,9 @@
                         }
                     }
 
+                    // Tự động sinh câu nhận xét bám sát số lần đếm thực tế phía trên
+                    let dynamicNhanXet = `Chào phụ huynh, em ${info.hoTen} lớp ${info.lop}. Chuyên cần: đúng giờ ${coMat} lần, đi muộn ${muon} lần.`;
+
                     let profileHtml = `
                         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-5 rounded-2xl mb-6 shadow-sm">
                             <h3 class="font-extrabold text-blue-900 text-xl">${info.hoTen}</h3>
@@ -816,10 +812,10 @@
                                 </div>
                             </div>
 
-                            <!-- Khung hiển thị thẳng nhận xét trực tiếp lên giao diện -->
+                            <!-- Khung nhận xét đồng bộ tuyệt đối -->
                             <div class="mt-4 bg-white p-4 rounded-xl border-l-4 border-indigo-500 shadow-inner">
                                 <strong class="text-indigo-900 text-sm block mb-1">💬 Nhận xét của Giáo viên chủ nhiệm:</strong>
-                                <p class="text-slate-700 text-sm leading-relaxed">${latestNhanXet}</p>
+                                <p class="text-slate-700 text-sm leading-relaxed">${dynamicNhanXet}</p>
                             </div>
                         </div>
                         
