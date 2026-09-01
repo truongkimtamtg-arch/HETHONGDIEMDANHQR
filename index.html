@@ -839,9 +839,9 @@
             box.classList.remove('hidden'); 
             box.innerHTML = '<span class="animate-pulse">✨ Đang tổng hợp nhận xét chuyên cần...</span>';
             fetch(WEB_APP_URL + `?action=getAI&maHS=${encodeURIComponent(maHS)}`)
-            .then(res => res.text())
-            .then(text => { box.innerHTML = `<strong>Nhận xét của Giáo viên chủ nhiệm:</strong><br>${text}`; })
-            .catch(err => box.innerHTML = '❌ Lỗi tải nhận xét. Vui lòng thử lại.');
+                .then(res => res.text())
+                .then(text => { box.innerHTML = `<strong>Nhận xét của Giáo viên chủ nhiệm:</strong><br>${text}`; })
+                .catch(err => box.innerHTML = '❌ Lỗi tải nhận xét. Vui lòng thử lại.');
          }
 
         // --- ĐĂNG KÝ SERVICE WORKER (PWA) ---
