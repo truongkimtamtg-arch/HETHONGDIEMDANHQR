@@ -23,15 +23,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Be Vietnam Pro', sans-serif; }
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            .app-container, .sparkle-shadow { box-shadow: none !important; background: transparent !important; animation: none !important; border: none !important;}
-        }
         
         /* Tùy chỉnh thanh cuộn */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px;}
@@ -53,6 +48,118 @@
             position: relative;
             z-index: 10;
         }
+
+        /* --- CẤU HÌNH GIAO DIỆN IN THẺ HỌC SINH (Ngang) --- */
+        @media print {
+            /* Ẩn toàn bộ giao diện web khi in */
+            body { background: white !important; margin: 0 !important; padding: 0 !important; }
+            .no-print, .app-container { display: none !important; }
+            .print-only { display: block !important; }
+            
+            /* Lưới chứa thẻ học sinh */
+            #print-cards-container { 
+                display: flex !important; 
+                flex-wrap: wrap; 
+                justify-content: center;
+                gap: 20px; 
+                width: 100%;
+                background: white;
+            }
+            
+            /* Khung thẻ ngang */
+            .student-card {
+                width: 350px;
+                height: 220px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                page-break-inside: avoid;
+                background: white;
+            }
+            
+            /* Header thẻ (Màu xanh tím) */
+            .card-header {
+                background-color: #4f46e5 !important;
+                color: white !important;
+                text-align: center;
+                padding: 10px 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .card-header .school { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+            .card-header .title { font-size: 18px; font-weight: 900; margin: 2px 0; letter-spacing: 1px; }
+            .card-header .year { font-size: 9px; font-weight: 500; }
+            
+            /* Thân thẻ */
+            .card-body {
+                display: flex;
+                padding: 12px;
+                flex: 1;
+                align-items: center;
+            }
+            
+            /* Khung ảnh thẻ (Avatar) */
+            .card-body .avatar {
+                width: 75px;
+                height: 100px;
+                background-color: #e2e8f0;
+                border-radius: 6px;
+                border: 1px solid #cbd5e1;
+                background-image: url('https://cdn-icons-png.flaticon.com/512/149/149071.png');
+                background-size: contain;
+                background-position: bottom;
+                background-repeat: no-repeat;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            /* Thông tin học sinh */
+            .card-body .info {
+                flex: 1;
+                padding: 0 12px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+            .info .name { font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+            .info p { margin: 3px 0; font-size: 11px; color: #64748b; font-weight: 500; }
+            .info p strong { color: #1e293b; font-weight: 800; }
+            .info p .highlight-class { color: #4f46e5; font-weight: 800; font-size: 12px; }
+            
+            /* Vùng mã QR */
+            .card-body .qr-section {
+                width: 90px;
+                text-align: center;
+            }
+            .qr-section .qr-box {
+                width: 80px;
+                height: 80px;
+                padding: 4px;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                margin: 0 auto;
+                background: white;
+            }
+            .qr-section .qr-text { font-size: 8px; font-weight: 700; color: #94a3b8; margin-top: 6px; text-transform: uppercase; }
+            
+            /* Chân thẻ */
+            .card-footer {
+                background-color: #f8fafc !important;
+                padding: 6px 12px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 9px;
+                color: #64748b;
+                border-top: 1px solid #f1f5f9;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .card-footer .footer-note { font-style: italic; }
+            .card-footer .footer-sign { font-weight: 800; color: #475569; }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-r from-teal-200 via-emerald-50 to-emerald-200 min-h-screen text-slate-800 antialiased p-2 sm:p-6 md:p-8">
@@ -64,27 +171,26 @@
             <div class="inline-flex items-center justify-center p-3.5 bg-gradient-to-br from-emerald-600 to-teal-800 text-white rounded-2xl shadow-lg shadow-emerald-500/40 mb-4 ring-4 ring-emerald-50">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
             </div>
-            <!-- Tiêu đề bỏ hiệu ứng cắt nền, thêm padding để hiển thị tuyệt đối rõ dấu -->
             <h1 class="text-3xl sm:text-4xl font-extrabold text-teal-900 tracking-tight py-2 leading-normal drop-shadow-sm">HỆ THỐNG ĐIỂM DANH THÔNG MINH BẰNG MÃ QR</h1>
             <p class="text-slate-600 text-sm sm:text-base mt-1 font-bold">Số hóa chuyên cần học sinh bằng công nghệ mã QR</p>
         </header>
 
-        <!-- Navigation Tabs 5 NÚT: Nền xanh dương nhạt, Nút hồng cánh sen, chữ đỏ đô -->
+        <!-- Navigation Tabs (Màu xanh dương - chữ trắng) -->
         <div class="flex justify-center mb-10 no-print overflow-x-auto pb-4 custom-scrollbar">
             <div class="bg-blue-100 p-2.5 rounded-2xl flex space-x-2 shadow-inner min-w-max border border-blue-200">
-                <button onclick="switchTab('scan')" id="btn-scan" class="px-6 py-3 rounded-xl font-extrabold text-sm transition-all duration-300 bg-pink-600 text-red-950 border border-pink-400 shadow-lg shadow-pink-500/50 transform scale-105 whitespace-nowrap">
+                <button onclick="switchTab('scan')" id="btn-scan" class="px-6 py-3 rounded-xl font-extrabold text-sm transition-all duration-300 bg-blue-600 text-white border border-blue-700 shadow-lg shadow-blue-500/50 transform scale-105 whitespace-nowrap">
                     📸 QUÉT MÃ QR
                 </button>
-                <button onclick="switchTab('list')" id="btn-list" class="px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-pink-400 text-red-900 hover:bg-pink-500 hover:text-red-950 hover:scale-105 transform scale-95 whitespace-nowrap shadow-md border border-pink-300">
-                    📋 DANH SÁCH MÃ QR
+                <button onclick="switchTab('list')" id="btn-list" class="px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-blue-500 text-white hover:bg-blue-600 hover:scale-105 transform scale-95 whitespace-nowrap shadow-md border border-blue-400">
+                    📋 IN THẺ HỌC SINH & QR
                 </button>
-                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-pink-400 text-red-900 hover:bg-pink-500 hover:text-red-950 hover:scale-105 transform scale-95 whitespace-nowrap shadow-md border border-pink-300">
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-blue-500 text-white hover:bg-blue-600 hover:scale-105 transform scale-95 whitespace-nowrap shadow-md border border-blue-400">
                     📊 THỐNG KÊ - BÁO CÁO
                 </button>
-                <button onclick="switchTab('ranking')" id="btn-ranking" class="px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-pink-400 text-red-900 hover:bg-pink-500 hover:text-red-950 hover:scale-105 transform scale-95 whitespace-nowrap shadow-md border border-pink-300">
+                <button onclick="switchTab('ranking')" id="btn-ranking" class="px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-blue-500 text-white hover:bg-blue-600 hover:scale-105 transform scale-95 whitespace-nowrap shadow-md border border-blue-400">
                     🏆 THI ĐUA
                 </button>
-                <button onclick="switchTab('search')" id="btn-search" class="px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-pink-400 text-red-900 hover:bg-pink-500 hover:text-red-950 hover:scale-105 transform scale-95 whitespace-nowrap shadow-md border border-pink-300">
+                <button onclick="switchTab('search')" id="btn-search" class="px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-blue-500 text-white hover:bg-blue-600 hover:scale-105 transform scale-95 whitespace-nowrap shadow-md border border-blue-400">
                     🔍 TRA CỨU
                 </button>
             </div>
@@ -134,16 +240,19 @@
             </div>
         </div>
 
-        <!-- TAB 2: DANH SÁCH -->
+        <!-- TAB 2: IN THẺ & DANH SÁCH -->
         <div id="tab-list" class="sparkle-shadow rounded-[2rem] p-6 sm:p-10 hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 no-print">
                 <div>
-                    <h2 class="text-2xl font-extrabold text-slate-800">Danh Sách Học Sinh & Thẻ QR</h2>
+                    <h2 class="text-2xl font-extrabold text-slate-800">In Thẻ Học Sinh & Mã QR</h2>
                     <p class="text-sm text-slate-500 mt-1 font-semibold text-red-500/80">Dữ liệu đồng bộ trực tiếp từ Google Sheets</p>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <button onclick="window.print()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition flex items-center space-x-2 border border-slate-200 shadow-sm">
-                        <span>🖨️ In thẻ QR</span>
+                    <button onclick="window.print()" class="px-5 py-2.5 bg-white hover:bg-slate-50 text-[#475569] rounded-xl text-base font-bold transition flex items-center space-x-2 border border-slate-200 shadow-sm">
+                        <svg class="w-6 h-6 text-[#475569]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                        </svg>
+                        <span>In Thẻ Học Sinh</span>
                     </button>
                     <button onclick="loadStudentData()" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition flex items-center space-x-2 shadow-md shadow-red-500/30 border border-red-500">
                         <span>🔄 Cập nhật</span>
@@ -151,7 +260,7 @@
                 </div>
             </div>
             
-            <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50/50 shadow-inner p-2">
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50/50 shadow-inner p-2 no-print">
                 <table class="w-full text-left border-collapse bg-white rounded-xl overflow-hidden shadow-sm">
                     <thead>
                         <tr class="bg-slate-800 text-white text-xs font-extrabold uppercase tracking-wider">
@@ -221,7 +330,7 @@
                 </div>
             </div>
 
-            <!-- KHỐI MỚI: CẢNH BÁO VI PHẠM TÍCH LŨY -->
+            <!-- KHỐI CẢNH BÁO VI PHẠM TÍCH LŨY -->
             <div class="mt-8 bg-gradient-to-r from-rose-50 to-red-50 rounded-3xl p-6 md:p-8 border-2 border-red-200 shadow-sm">
                 <div class="flex items-center space-x-4 mb-6">
                     <div class="p-3 bg-white rounded-full shadow-md"><span class="text-2xl">🚨</span></div>
@@ -299,6 +408,9 @@
             Dự án thiết kế bởi <strong class="text-red-600">GV: Trương Thị Kim Tâm</strong>
         </div>
     </div>
+
+    <!-- Vùng chứa Thẻ Học Sinh ẩn, chỉ hiển thị khi bấm lệnh In -->
+    <div id="print-cards-container" class="hidden print-only"></div>
 
     <!-- PHẦN SCRIPT -->
     <script>
@@ -397,13 +509,13 @@
             tabs.forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 let btn = document.getElementById(`btn-${t}`);
-                if(btn) btn.className = "px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-pink-400 text-red-900 hover:bg-pink-500 hover:text-red-950 hover:scale-105 transform scale-95 whitespace-nowrap shadow-md border border-pink-300";
+                if(btn) btn.className = "px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-blue-500 text-white hover:bg-blue-600 hover:scale-105 transform scale-95 whitespace-nowrap shadow-md border border-blue-400";
             });
 
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
             let activeBtn = document.getElementById(`btn-${tab}`);
             if(activeBtn) {
-                activeBtn.className = "px-6 py-3 rounded-xl font-extrabold text-sm transition-all duration-300 bg-pink-600 text-red-950 border border-pink-400 shadow-lg shadow-pink-500/50 transform scale-105 whitespace-nowrap";
+                activeBtn.className = "px-6 py-3 rounded-xl font-extrabold text-sm transition-all duration-300 bg-blue-600 text-white border border-blue-700 shadow-lg shadow-blue-500/50 transform scale-105 whitespace-nowrap";
             }
 
             if (tab === 'scan') startScanner(); else stopScanner();
@@ -510,19 +622,26 @@
 
         function loadStudentData() {
             const tbody = document.getElementById('student-table-body');
+            const printContainer = document.getElementById('print-cards-container');
+            
             tbody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-slate-500 font-bold bg-white">⏳ Đang tải danh sách từ hệ thống...</td></tr>`;
+            printContainer.innerHTML = ''; 
 
             fetch(WEB_APP_URL).then(res => res.json()).then(data => {
                 tbody.innerHTML = "";
+                printContainer.innerHTML = "";
+                
                 if (!data || data.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-slate-500 font-bold bg-white">Chưa có dữ liệu học sinh.</td></tr>`;
                     return;
                 }
+                
                 data.forEach((student, index) => {
                     let ma = student.maHS || student[0], ten = student.hoTen || student[1], lop = student.lop || student[2] || "Khác";
                     studentDataCache[ma] = { hoTen: ten, lop: lop };
                     if(index === 0 && (ma === "MaHS" || ma === "Mã HS")) return; 
 
+                    // 1. Tạo Bảng danh sách
                     let row = document.createElement('tr');
                     row.className = "hover:bg-slate-50 transition-colors border-b border-slate-200 last:border-0 bg-white";
                     row.innerHTML = `<td class="py-5 px-4 font-extrabold text-slate-900 text-center align-middle">${ma}</td>
@@ -530,7 +649,40 @@
                                      <td class="py-5 px-4 font-extrabold text-center align-middle text-emerald-600 bg-emerald-50/30">${lop}</td>
                                      <td class="py-4 px-4 align-middle"><div class="flex justify-center"><div id="qrcode-${index}" class="p-2 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-red-400 hover:shadow-md transition-all"></div></div></td>`;
                     tbody.appendChild(row);
+                    
+                    // 2. Tạo Thẻ in ấn (Ngang) giống mẫu
+                    let card = document.createElement('div');
+                    card.className = "student-card";
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <div class="school">TRƯỜNG THPT TÂY GIANG</div>
+                            <div class="title">THẺ HỌC SINH</div>
+                            <div class="year">NĂM HỌC: 2026 - 2027</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="avatar"></div>
+                            <div class="info">
+                                <div class="name">${ten}</div>
+                                <p>Lớp: <span class="highlight-class">${lop}</span></p>
+                                <p>MSHS: <strong>${ma}</strong></p>
+                                                            </div>
+                            <div class="qr-section">
+                                <div class="qr-box" id="print-qrcode-${index}"></div>
+                                <div class="qr-text">MÃ ĐIỂM DANH</div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="footer-note">* Thẻ dùng để quét điểm danh mỗi ngày</div>
+                            <div class="footer-sign">HIỆU TRƯỞNG KÝ</div>
+                        </div>
+                    `;
+                    printContainer.appendChild(card);
+
+                    // Render mã QR bảng
                     new QRCode(document.getElementById(`qrcode-${index}`), { text: ma, width: 70, height: 70, colorDark : "#1e293b", colorLight : "#ffffff" });
+                    
+                    // Render mã QR Thẻ (Kích thước 70x70 lọt vào khung)
+                    new QRCode(document.getElementById(`print-qrcode-${index}`), { text: ma, width: 70, height: 70, colorDark : "#0f172a", colorLight : "#ffffff" });
                 });
             }).catch(() => { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-rose-500 font-bold bg-white">❌ Không thể tải dữ liệu. Vui lòng kiểm tra kết nối mạng.</td></tr>`; });
         }
@@ -826,7 +978,6 @@
                             }
                         }
 
-                        // Nhận xét sử dụng "Cô giáo"
                         let dynamicNhanXet = `Chào phụ huynh, em ${info.hoTen} lớp ${info.lop}. Chuyên cần: đúng giờ ${coMat} lần, đi muộn ${muon} lần. Cô giáo rất mong gia đình tiếp tục phối hợp nhắc nhở để em duy trì nề nếp tốt hơn.`;
 
                         let profileHtml = `
@@ -853,7 +1004,6 @@
                                 </div>
                             </div>
                             
-                            <!-- Khung nhận xét -->
                             <div class="mb-8 bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-3xl border border-red-100 shadow-sm relative overflow-hidden">
                                 <div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>
                                 <div class="flex items-start space-x-4">
@@ -882,7 +1032,6 @@
                 });
         }
 
-        // --- ĐĂNG KÝ SERVICE WORKER (PWA) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
